@@ -45,7 +45,7 @@ int main() {
 
         int len = read(sock, buffer, sizeof(buffer) - 1);
         buffer[len] = '\0';
-        printf("Server: %s", buffer);
+        printf("Server: %s\n", buffer);
     }
 
     close(sock);
