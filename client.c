@@ -3,51 +3,42 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 
-#define PORT 12345
-#define SERVER_IP "127.0.0.1"  // Codespaces에서는 같은 환경이므로 localhost 사용 가능
+void error_handling(char *message);
 
-int main() {
+
+int main(int argc, char* argv[]) {
     int sock;
     struct sockaddr_in serv_addr;
-    char message[1024], buffer[1024];
+    char message[30];
+    int str_len;
 
-    // 소켓 생성
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1) {
-        perror("socket");
+    if(argc!=3){
+        printf("Usage : %s <IP> <port> \n",argv[0]);
         exit(1);
     }
 
-    // 서버 주소 설정
+    sock = socket(PF_INET, SOCK_STREAM, 0);
+    if(sock==-1) error_handling("socket() error");
+
+    memset(&serv_addr, 0 , sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    serv_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
+    serv_addr.sin_port = htons(atoi(argv[2]));
 
-    // 서버에 연결
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1) {
-        perror("connect");
-        exit(1);
-    }
+    if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1) error_handling("connect() error");
 
-    printf("Connected to server. Type message:\n");
+    str_len = read(sock,message,sizeof(message)-1);
+    if(str_len == -1) error_handling("read error()");
 
-    // 메시지 입력 후 서버로 전송
-    while (1) {
-        printf("You: ");
-        fgets(message, sizeof(message), stdin);
-
-        // quit 입력 시 종료
-        if (strncmp(message, "quit", 4) == 0)
-            break;
-
-        write(sock, message, strlen(message));
-
-        int len = read(sock, buffer, sizeof(buffer) - 1);
-        buffer[len] = '\0';
-        printf("Server: %s\n", buffer);
-    }
-
+    printf("Message from server : %s \n", message);
     close(sock);
     return 0;
+}
+
+void error_handling(char *message){
+    fputs(message, stderr);
+    fputc('\n',stderr);
+    exit(1);
 }

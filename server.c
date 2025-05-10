@@ -3,44 +3,50 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+void error_handling(char *message);
 
 #define PORT 12345
 
-int main() {
-    int server_fd, client_fd;
-    struct sockaddr_in serv_addr, client_addr;
-    socklen_t client_len = sizeof(client_addr);
-    char buffer[1024] = {0};
+int main(int argc,char *argv[]) {
+    int serv_sock;
+    int clnt_sock;
 
-    // 1. 소켓 생성
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in serv_addr;
+    struct sockaddr_in clnt_addr;
+    socklen_t clnt_addr_size;
 
-    // 2. 주소 설정
+    char message[] = "Hello World";
+
+    if(argc!=2){
+        printf("Usage : %s <port>\n",argv[0]);
+        exit(1);
+    }
+    serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+    if(serv_sock == -1) error_handling("socket() error");
+
+    memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port = htons(atoi(argv[1]));
 
-    // 3. 바인드
-    bind(server_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    if(bind(serv_sock,(struct sockaddr*) &serv_addr,sizeof(serv_addr))==-1) error_handling("bind() error");
 
-    // 4. 리슨
-    listen(server_fd, 5);
-    printf("서버 실행 중... 포트 %d\n", PORT);
+    if(listen(serv_sock,5)==-1) error_handling("listen() error");
 
-    // 5. 클라이언트 연결 대기
-    client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
-    printf("클라이언트 연결됨\n");
+    clnt_addr_size = sizeof(clnt_addr);
+    clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr, &clnt_addr_size);
+    if(clnt_sock==-1) error_handling("accept() error");
 
-    // 6. 메시지 읽기
-    read(client_fd, buffer, 1024);
-    printf("클라이언트 메시지: %s\n", buffer);
-
-    // 7. 응답 보내기
-    send(client_fd, "Hello from server!", strlen("Hello from server!"), 0);
-
-    // 8. 종료
-    close(client_fd);
-    close(server_fd);
-
+    write(clnt_sock,message,sizeof(message));
+    close(clnt_sock);
+    close(serv_sock);
     return 0;
+
+}
+
+void error_handling(char *message){
+    fputs(message,stderr);
+    fputc('n',stderr);
+    exit(1);
 }
