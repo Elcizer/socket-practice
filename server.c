@@ -38,7 +38,11 @@ int main(int argc,char *argv[]) {
     clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr, &clnt_addr_size);
     if(clnt_sock==-1) error_handling("accept() error");
 
-    write(clnt_sock,message,sizeof(message));
+    for(int i=0;i<sizeof(message);i++){
+        write(clnt_sock,&message[i],1);
+        for(int j=0;j<300;j++) printf("wait time:%d\n",j);
+    }
+    // write(clnt_sock,message,sizeof(message));
     close(clnt_sock);
     close(serv_sock);
     return 0;
