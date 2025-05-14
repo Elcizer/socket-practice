@@ -12,7 +12,7 @@ void error_handling(char * message);
 int main(int argc,char *argv[]){
     int sock;
     char message[BUF_SIZE];
-    int str_len;
+    int str_len,recv_len,recv_cnt;
     struct sockaddr_in serv_adr;
 
     if(argc!=3){
@@ -39,7 +39,14 @@ int main(int argc,char *argv[]){
 
         write(sock,message,strlen(message));
         str_len = read(sock,message,BUF_SIZE-1);
-        message[str_len] = 0;
+
+        recv_len = 0
+        while(recv_len<str_len){
+            recv_cnt = read(sock,&message[recv_len],BUF_SIZE-1);
+            if(recv_cnt==-1) error_handling("read() error");
+            recv_len += recv_cnt;
+        }
+        message[recv_len] = 0;
         printf("Message from Server: %s",message);
     }
     close(sock);
