@@ -29,7 +29,6 @@ int main(int argc, char* argv[]) {
 
     if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1) error_handling("connect() error");
 
-    for(int i=0;i<1500;i++) printf("wait time : %d\n",i);
     str_len = read(sock,message,sizeof(message)-1);
     if(str_len == -1) error_handling("read error()");
 

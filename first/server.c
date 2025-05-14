@@ -33,16 +33,16 @@ int main(int argc,char *argv[]) {
     if(bind(serv_sock,(struct sockaddr*) &serv_addr,sizeof(serv_addr))==-1) error_handling("bind() error");
 
     if(listen(serv_sock,5)==-1) error_handling("listen() error");
-
     clnt_addr_size = sizeof(clnt_addr);
-    clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr, &clnt_addr_size);
-    if(clnt_sock==-1) error_handling("accept() error");
 
-    for(int i=0;i<sizeof(message);i++){
-        write(clnt_sock,&message[i],1);
-        for(int j=0;j<300;j++) printf("wait time:%d\n",j);
+    for(int i=0;i<5;i++){
+        clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr, &clnt_addr_size);
+        if(clnt_sock==-1) error_handling("accept() error");
+        printf("Connect client %d...\n",i+1);
+        write(clnt_sock,message,sizeof(message));
+        close(clnt_sock);
     }
-    // write(clnt_sock,message,sizeof(message));
+
     close(clnt_sock);
     close(serv_sock);
     return 0;
