@@ -17,4 +17,5 @@ iterative
 클라이언트 : 한번의 송신 후 바로 연결을 끊지 않고 q Q가 나올때 까지 반복 
 
 operate
+
 클라이언트가 operator(+,-,*)와 operand를 보내면 결과를 전달하는 서버
