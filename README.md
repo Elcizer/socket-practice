@@ -20,5 +20,7 @@ operate
 
 ## 2025 / 05 / 15
 UDP
-
 UDP기반 서버 / 클라 구현 
+
+DNS
+IP -> DNS NAME / DNS NAME -> IP 함수 실행하는 프로그램
