@@ -65,8 +65,9 @@ int main(int argc,char *argv[]){
             return 0;
         }
         else close(clnt_sock); // 부모 프로세스는 자식 프로세스에게 소켓을 전달했으므로 삭제 (부모 프로세스의 clnt_sock 변수를 초기화)
-        return 0;
     }
+    close(serv_sock);
+    return 0;
 }
 void read_childproc(int sig){
     pid_t pid;
