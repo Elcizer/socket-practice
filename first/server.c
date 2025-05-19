@@ -4,9 +4,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-void error_handling(char *message);
 
-#define PORT 12345
+#define BUF_SIZE 1024
+void error_handling(char *message);
 
 int main(int argc,char *argv[]) {
     int serv_sock;
@@ -15,6 +15,9 @@ int main(int argc,char *argv[]) {
     struct sockaddr_in serv_addr;
     struct sockaddr_in clnt_addr;
     socklen_t clnt_addr_size;
+
+    FILE * readfp;
+    FILE * writefp;
 
     char message[] = "Hello World";
 
@@ -39,10 +42,18 @@ int main(int argc,char *argv[]) {
         clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr, &clnt_addr_size);
         if(clnt_sock==-1) error_handling("accept() error");
         printf("Connect client %d...\n",i+1);
-        write(clnt_sock,message,sizeof(message));
-        close(clnt_sock);
-    }
 
+        readfp = fdopen(clnt_sock,"r");
+        writefp = fdopen(clnt_sock,"w");
+
+        while(!feof(readfp)){
+            fgets(message,BUF_SIZE,readfp);
+            fputs(message,writefp);
+            fflush(writefp);
+        }
+        fclose(readfp);
+        fclose(writefp);
+    }
     close(clnt_sock);
     close(serv_sock);
     return 0;
