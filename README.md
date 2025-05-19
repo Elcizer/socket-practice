@@ -32,3 +32,8 @@ IP -> DNS NAME / DNS NAME -> IP 함수 실행하는 프로그램
 ## 2025 / 05 / 18
 ### select   
 select를 이용해 멀티플렉싱 기반 서버 구현
+
+## 2025 / 05 / 19
+브로드 캐스트 sender / receiver 작성
+
+first 파일의 에코 클라이언트 입출력을 표준 입출력(fgets, fputs)으로 수정
